@@ -33,7 +33,7 @@ export class AccountService {
   async getAllAccounts(): Promise<Account[]> {
     return this.accountModel.find().exec();
   }
-
+  
   async deleteAccount(accountId: string): Promise<void> {
     const result = await this.accountModel.deleteOne({ _id: accountId }).exec();
     if (result.deletedCount === 0) {

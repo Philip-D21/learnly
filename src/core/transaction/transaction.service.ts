@@ -18,6 +18,7 @@ export class TransactionService {
 
   private resHandler = brcResponse;
 
+  
   async createTransaction(transactionDTO: TransactionDTO): Promise<Transaction> {
     try {
       // Validate source account existence and balance 
@@ -44,6 +45,7 @@ export class TransactionService {
         status: Status,
         TransactionDate: new Date(),
       });
+
 
       // Update source account balance
       if (transactionDTO.type === 'withdrawal' || transactionDTO.type === 'transfer') {
