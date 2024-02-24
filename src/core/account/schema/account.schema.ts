@@ -6,9 +6,7 @@ export type AccountDocument = Account & Document
 
 @Schema({ timestamps: true })
 export class Account {
-  save() {
-      throw new Error("Method not implemented.");
-  }
+ 
   @Prop({ type: SchemaTypes.ObjectId, ref: 'User', required: true })
   userId: string;
 

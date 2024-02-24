@@ -1,5 +1,6 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
-import { TransactionType } from 'src/common/interface/main.interface';
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { Status, TransactionType } from 'src/common/interface/main.interface';
+
 
 
 export class TransactionDTO {
@@ -18,4 +19,10 @@ export class TransactionDTO {
   @IsOptional()
   @IsString()
   destinationAccountId?: string;
+  
+  @IsNotEmpty()
+  @IsEnum(Status, { message: 'Invalid status value' })
+  status: Status
 }
+
+

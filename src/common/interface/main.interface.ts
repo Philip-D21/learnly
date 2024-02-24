@@ -22,7 +22,6 @@ export interface JwtPayloadI {
     readonly userName?:string
 }
 
-
 export enum TransactionType {
    Deposit= 'deposit',
    Transfer= 'transfer',
@@ -34,7 +33,3 @@ export enum Status {
     Completed='completed',
     Failed='failed'
 }
-
-
-
-
