@@ -5,7 +5,7 @@ import { AccountDTO } from '../src/core/account/dto/account.dto';
 
 
 
-describe('AccountController', () => {
+describe('AccountController (e2e)', () => {
     let accountController: AccountController;
     let accountService: AccountService;
   
@@ -39,7 +39,7 @@ describe('AccountController', () => {
           },
         };
   
-        jest.spyOn(accountService, 'createAccount').mockResolvedValue(expectedResult);
+       // jest.spyOn(accountService, 'createAccount').mockResolvedValue(expectedResult);
   
         expect(await accountController.createAccount(accountDTO)).toBe(expectedResult);
       });
@@ -55,7 +55,6 @@ describe('AccountController', () => {
           accountNumber: '1234567890',
           balance: 0,
           isSavingsAccount: false,
-          // other properties as needed
         };
   
         jest.spyOn(accountService, 'getAccountById').mockResolvedValue(expectedResult);
@@ -80,7 +79,7 @@ describe('AccountController', () => {
           },
         };
   
-        jest.spyOn(accountService, 'updateAccount').mockResolvedValue(expectedResult);
+       // jest.spyOn(accountService, 'updateAccount').mockResolvedValue(expectedResult);
   
         expect(await accountController.updateAccount(accountId, updateAccountDTO)).toBe(expectedResult);
       });
@@ -95,7 +94,7 @@ describe('AccountController', () => {
             accountNumber: '1234567891',
             balance: 100.50,
             isSavingsAccount: true,
-            // other properties as needed
+            
           },
           {
             accountId: 'accountId2',
@@ -103,12 +102,12 @@ describe('AccountController', () => {
             accountNumber: '1234567892',
             balance: 50.25,
             isSavingsAccount: false,
-            // other properties as needed
+           
           },
-          // Other accounts as needed
+         
         ];
   
-        jest.spyOn(accountService, 'getAllAccounts').mockResolvedValue(getAllAccountsExpectedResult);
+        //jest.spyOn(accountService, 'getAllAccounts').mockResolvedValue(getAllAccountsExpectedResult);
   
         expect(await accountController.getAllAccounts()).toBe(getAllAccountsExpectedResult);
       });
@@ -125,7 +124,7 @@ describe('AccountController', () => {
           },
         };
   
-        jest.spyOn(accountService, 'deleteAccount').mockResolvedValue(deleteAccountExpectedResult);
+        //jest.spyOn(accountService, 'deleteAccount').mockResolvedValue(deleteAccountExpectedResult);
   
         expect(await accountController.deleteAccount(accountId)).toBe(deleteAccountExpectedResult);
       });

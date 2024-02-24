@@ -9,9 +9,6 @@ export type TransactionDocument = Transaction & Document
 @Schema({ timestamps: true })
 export class Transaction {
 
-  @Prop({ type: SchemaTypes.ObjectId, ref: 'User', required: true })
-  userId: string;
- 
   @Prop({ required: true })
   type: TransactionType
 

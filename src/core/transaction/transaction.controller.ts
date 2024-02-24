@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Req, Res } from '@nestjs/common';
+import { Controller, Post, Get, Body, Req, Res, Param } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
 import { TransactionDTO } from './dto/transaction.dto';
 import { brcResponse } from 'src/common/brc.response';
@@ -29,5 +29,12 @@ export class TransactionController {
     const getAllTransactions = await this.transactionService.getAllTransactions()
 
     return res.status(200).json(success('Transaction successful', { getAllTransactions}))
+  }
+
+
+  @Get(':accountId')
+  async getTransactionsByAccountId(@Param('accountId') accountId: string): Promise<any> {
+    const result = await this.transactionService.getTransactionsByAccountId(accountId);
+    return result;
   }
 }

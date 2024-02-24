@@ -1,13 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { TransactionController } from './transaction.controller';
-import { TransactionService } from './transaction.service';
-import { TransactionDTO } from './dto/transaction.dto';
+import { TransactionController } from '../src/core/transaction/transaction.controller';
+import { TransactionService } from '../src/core/transaction/transaction.service';
+import { TransactionDTO } from '../src/core/transaction/dto/transaction.dto';
 import { Response } from 'express';
 import { brcResponse } from 'src/common/brc.response';
+import { Status, TransactionType } from 'src/common/interface/main.interface';
 
 const { success } = brcResponse;
 
-describe('TransactionController', () => {
+describe('TransactionController (e2e)', () => {
   let transactionController: TransactionController;
   let transactionService: TransactionService;
 
@@ -23,10 +24,15 @@ describe('TransactionController', () => {
 
   describe('createTransaction', () => {
     it('should create a transaction', async () => {
-      const transactionDTO: TransactionDTO = { /* provide necessary data for creating a transaction */ };
+      const transactionDTO: TransactionDTO = {
+        type: TransactionType.Deposit,
+        amount: 0,
+        sourceAccountId: '',
+        status: Status.Pending
+      };
       const createdTransaction = { /* define the result of the createTransaction method */ };
 
-      jest.spyOn(transactionService, 'createTransaction').mockResolvedValue(createdTransaction);
+      //jest.spyOn(transactionService, 'createTransaction').mockResolvedValue(createdTransaction);
 
       const req: Partial<Request> = {};
       const res: Partial<Response> = {

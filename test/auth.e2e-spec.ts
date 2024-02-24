@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { AuthDto } from './dto/auth.dto';
+import { AuthController } from '../src/core/auth/auth.controller';
+import { AuthService } from '../src/core/auth/auth.service';
+import { AuthDto } from '../src/core/auth/dto/auth.dto';
 import { Response } from 'express';
 import { brcResponse } from 'src/common/brc.response';
-
+import * as request from 'supertest'
 const { success } = brcResponse;
 
-describe('AuthController', () => {
+describe('AuthController (e2e)', () => {
   let authController: AuthController;
   let authService: AuthService;
 
@@ -21,9 +21,13 @@ describe('AuthController', () => {
     authService = module.get<AuthService>(AuthService);
   });
 
-  describe('register', () => {
+  describe('register ', () => {
     it('should register a new user', async () => {
-      const authDto: AuthDto = { /* provide necessary data for registration */ };
+      const authDto: AuthDto = {
+        username: '',
+        password: '',
+        email: ''
+      };
       const registerResult = { /* define the result of the registration */ };
 
       jest.spyOn(authService, 'register').mockResolvedValue(registerResult);
@@ -42,7 +46,11 @@ describe('AuthController', () => {
 
   describe('login', () => {
     it('should log in a user and return a token', async () => {
-      const authDto: AuthDto = { /* provide necessary data for login */ };
+      const authDto: AuthDto = {
+        username: '',
+        password: '',
+        email: ''
+      };
       const token = 'someToken';
 
       jest.spyOn(authService, 'login').mockResolvedValue(token);
