@@ -12,7 +12,7 @@ import { Transaction, TransactionSchema } from '../transaction/schema/transactio
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Account.name, schema: AccountSchema },
-      //{ name: Transaction.name, schema: TransactionSchema}
+     
     ]),
       
   ],
