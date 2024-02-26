@@ -1,12 +1,13 @@
-// transaction.service.ts
 import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
 import { Transaction, TransactionDocument } from "./schema/transaction.schema";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import { ClientSession, Model } from "mongoose";
 import { TransactionDTO } from "./dto/transaction.dto";
 import { brcResponse } from "src/common/brc.response";
 import { AccountService } from "../account/account.service";
 import { Account, AccountDocument } from "../account/schema/account.schema";
+import { Status, TransactionType } from "src/common/interface/main.interface";
+import { StartupSnapshot } from "v8";
 
 @Injectable()
 export class TransactionService {
@@ -18,45 +19,37 @@ export class TransactionService {
 
   private resHandler = brcResponse;
 
-  async createTransaction(transactionDTO: TransactionDTO): Promise<Transaction> {
+  async createTransaction(transactionDTO: TransactionDTO): Promise<any> {
+    const session = await this.TransactionModel.startSession();
+    
     try {
-      const sourceAccount = await this.accountService.getAccountById(transactionDTO.sourceAccountId);
+      await session.withTransaction(async () => {
+        const { accountNumber, amount, balanceBefore, purpose, reference, summary } = transactionDTO;
 
-      if (!sourceAccount) {
-        throw new NotFoundException(`Source account with ID ${transactionDTO.sourceAccountId} not found.`);
-      }
-
-      if (transactionDTO.type === 'withdrawal' && sourceAccount.balance < transactionDTO.amount) {
-        throw new BadRequestException('Insufficient funds for withdrawal.');
-      }
-
-      // For transfer, validate destination account existence
-      if (transactionDTO.type === 'transfer') {
-        const destinationAccount = await this.accountService.getAccountById(transactionDTO.destinationAccountId);
-        if (!destinationAccount) {
-          throw new NotFoundException(`Destination account with ID ${transactionDTO.destinationAccountId} not found.`);
+        // Retrieve the account and check if it exists
+        const account = await this.accountService.getAccountByNumber(accountNumber);
+        if (!account) {
+          throw new NotFoundException(`Account with number ${accountNumber} not found`);
         }
 
-        // Update destination account balance for transfer
-        destinationAccount.balance += transactionDTO.amount;
-        await (destinationAccount as AccountDocument).save(); // Save the destination account
+        // Update the account balance and create the transaction
+        const newBalance = account.balance + amount;
+        await this.accountService.updateAccountBalance(accountNumber, newBalance);
 
-        // Update source account balance for transfer
-        sourceAccount.balance -= transactionDTO.amount;
-        await (sourceAccount as AccountDocument).save(); // Save the source account
-      }
+        transactionDTO.balanceAfter = newBalance;
 
-      // Create the transaction
-      const createdTransaction = await this.TransactionModel.create({
-        ...transactionDTO,
-        TransactionDate: new Date(),
+        const createdTransaction = new this.TransactionModel(transactionDTO);
+        await createdTransaction.save({ session });
+
+        // Commit the transaction
+        await session.commitTransaction();
       });
-
-      return createdTransaction;
-
     } catch (error) {
       error.location = 'createTransaction method';
-      throw error; 
+      throw error;
+    } finally {
+      // End the session after the transaction is committed or aborted
+      session.endSession();
     }
   }
 
@@ -66,23 +59,135 @@ export class TransactionService {
       return { transactions, message: "Transactions retrieved successfully" };
     } catch (error) {
       error.location = 'getAllTransactions method';
-      throw error; 
+      throw error;
     }
   }
 
-  async getTransactionsByAccountId(accountId: string): Promise<any> {
+  async getTransactionsByAccountNumber(accountNumber: string): Promise<any> {
     try {
-      const transactions = await this.TransactionModel.find({
-        $or: [
-          { sourceAccountId: accountId },
-          { destinationAccountId: accountId },
-        ],
-      }).exec();
+      const transactions = await this.TransactionModel.find({ accountNumber }).exec();
 
       return { transactions, message: "Transactions retrieved successfully" };
     } catch (error) {
-      error.location = 'getTransactionsByAccountId method';
+      error.location = 'getTransactionsByAccountNumber method';
       throw error;
+    }
+  }
+
+  async creditAccount({ amount, username, purpose, reference, summary, session }: {
+    amount: number;
+    username: string;
+    purpose: TransactionType;
+    reference: string;
+    summary: string;
+    status: Status;
+    session: ClientSession;
+  }): Promise<any> {
+    try {
+      const account = await this.accountModel.findOne({ username });
+
+      if (!account) {
+        return {
+          status: false,
+          message: `User ${username} doesn't exist`,
+        };
+      }
+
+      const updatedAccount = await this.accountModel.findOneAndUpdate(
+        { username },
+        { $inc: { balance: amount } },
+        { session },
+      );
+
+      const transactionDTO: TransactionDTO = {
+        accountNumber: updatedAccount.accountNumber,
+        amount,
+        balanceBefore: account.balance,
+        purpose,
+        reference,
+        summary,
+        balanceAfter: 0,
+        transactionDate: new Date(),
+        
+      };
+
+      await this.createTransaction(transactionDTO);
+
+      console.log('Credit successful');
+
+      return {
+        status: true,
+        message: 'Credit successful',
+        data: { updatedAccount },
+      };
+    } catch (error) {
+      console.error(`Error in creditAccount: ${error.message}`);
+      return {
+        status: false,
+        message: 'Failed to credit account',
+        error: error.message,
+      };
+    }
+  }
+
+  async debitAccount({ amount, accountNumber, purpose, reference, summary, session }: {
+    amount: number;
+    accountNumber: string;
+    purpose: TransactionType
+    reference: string;
+    summary: string;
+    status: Status
+    session: ClientSession;
+  }): Promise<any> {
+    try {
+      const account = await this.accountModel.findOne({ accountNumber });
+
+      if (!account) {
+        return {
+          status: false,
+          message: `User ${accountNumber} doesn't exist`,
+        };
+      }
+
+      if (Number(account.balance) < amount) {
+        return {
+          status: false,
+          message: `User ${accountNumber} has insufficient balance`,
+        };
+      }
+
+      const updatedAccount = await this.accountModel.findOneAndUpdate(
+        { accountNumber },
+        { $inc: { balance: -amount } },
+        { session },
+      );
+
+      const transactionDTO: TransactionDTO = {
+        accountNumber: updatedAccount.accountNumber,
+        amount,
+        balanceBefore: account.balance,
+        purpose,
+        reference,
+        summary,
+        balanceAfter: 0,
+        transactionDate: undefined
+      };
+
+      await this.createTransaction(transactionDTO);
+
+      console.log('Debit successful');
+      return {
+        status: true,
+        message: 'Debit successful',
+        data: { updatedAccount },
+      };
+    } catch (error) {
+      console.error(`Error in debitAccount: ${error.message}`);
+      return {
+        status: false,
+        message: 'Failed to debit account',
+        error: error.message,
+      };
     }
   }
 }

@@ -18,25 +18,20 @@ export class AccountService {
     return createdAccount.save();
   }
 
-  async getAccountById(accountId: string): Promise<Account | null> {
-    return this.accountModel.findById(accountId).exec();
+  async getAccountByNumber(accountNumber: string): Promise<Account | null> {
+    return this.accountModel.findOne({ accountNumber }).exec();
   }
 
-  // async getAccountTransactions(accountId: string): Promise<any> {
-  //   // Assuming you have a method to retrieve transactions by account ID in your TransactionService
-  //   return this.transactionService.getTransactionsByAccountId(accountId);
-  // }
+   
+  async updateAccountBalance(accountNumber: string, newBalance: number): Promise<void> {
+    const account = await this.accountModel.findOne({ accountNumber }).exec();
 
-  async updateAccount(accountId: string, accountDTO: AccountDTO): Promise<Account> {
-    const updatedAccount = await this.accountModel
-      .findByIdAndUpdate(accountId, accountDTO, { new: true })
-      .exec();
-
-    if (!updatedAccount) {
-      throw new NotFoundException(`Account with ID ${accountId} not found.`);
+    if (!account) {
+      throw new NotFoundException(`Account with number ${accountNumber} not found`);
     }
 
-    return updatedAccount;
+    account.balance = newBalance;
+    await account.save();
   }
 
   async getAllAccounts(): Promise<Account[]> {

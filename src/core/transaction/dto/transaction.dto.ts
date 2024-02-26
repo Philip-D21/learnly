@@ -8,14 +8,18 @@ export class TransactionDTO {
   @IsEnum(TransactionType)
   purpose: TransactionType;
 
+
   @IsDecimal()
   amount: number;
+
 
   @IsString()
   reference: string;
 
+
   @IsString()
   accountNumber: string;
+
 
   @IsDecimal()
   balanceBefore: number;
@@ -27,8 +31,27 @@ export class TransactionDTO {
   summary: string;
 
   @IsEnum(Status)
-  status: Status;
+  status?: Status;
 
   @IsDate()
   transactionDate: Date;
+}
+
+
+export interface CreditDTO {
+  amount: number;
+  username: string;
+  purpose: TransactionType;
+  reference: string;
+  summary: string;
+}
+
+// debitDTO
+export interface DebitDTO {
+  amount: number;
+  accountNumber: string;
+  purpose: TransactionType;
+  reference: string;
+  summary: string;
+
 }
