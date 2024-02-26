@@ -1,28 +1,34 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
-import { Status, TransactionType } from 'src/common/interface/main.interface';
-
-
+import { IsDecimal, IsEnum, IsString, IsDate } from 'class-validator';
+import { TransactionType, Status } from 'src/common/interface/main.interface';
 
 export class TransactionDTO {
-  @IsNotEmpty()
-  @IsString()
-  type: TransactionType
+  // @IsEnum(['CR', 'DR'])
+  // tranxType: string;
 
-  @IsNotEmpty()
-  @IsNumber()
+  @IsEnum(TransactionType)
+  purpose: TransactionType;
+
+  @IsDecimal()
   amount: number;
 
-  @IsNotEmpty()
   @IsString()
-  sourceAccountId: string;
+  reference: string;
 
-  @IsOptional()
   @IsString()
-  destinationAccountId?: string;
-  
-  @IsNotEmpty()
-  @IsEnum(Status, { message: 'Invalid status value' })
-  status: Status
+  accountNumber: string;
+
+  @IsDecimal()
+  balanceBefore: number;
+
+  @IsDecimal()
+  balanceAfter: number;
+
+  @IsString()
+  summary: string;
+
+  @IsEnum(Status)
+  status: Status;
+
+  @IsDate()
+  transactionDate: Date;
 }
-
-
