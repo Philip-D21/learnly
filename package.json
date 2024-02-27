@@ -29,6 +29,7 @@
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "class-validator": "^0.14.1",
+    "express-session": "^1.18.0",
     "install": "^0.13.0",
     "mongoose": "^8.2.0",
     "npm": "^10.4.0",
