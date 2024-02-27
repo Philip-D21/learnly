@@ -19,7 +19,7 @@ export class Transaction {
   @Prop({ type: String, required: true })
   reference: string;
 
-  @Prop({ type: SchemaTypes.ObjectId, ref: 'Account' })
+  @Prop({ ref: 'Account' })
   accountNumber: string;
 
   @Prop({ required: true, default: 0, type: Number, validate: IsDecimal })

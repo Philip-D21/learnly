@@ -8,6 +8,7 @@ import { BrcErr, JwtPayloadI, Role } from 'src/common/interface/main.interface';
 import { brcResponse } from 'src/common/brc.response';
 import { hashSync, genSaltSync, compareSync } from 'bcrypt';
 
+
 @Injectable()
 export class AuthService {
   constructor(

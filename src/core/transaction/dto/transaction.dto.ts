@@ -46,7 +46,7 @@ export interface CreditDTO {
   summary: string;
 }
 
-// debitDTO
+
 export interface DebitDTO {
   amount: number;
   accountNumber: string;

@@ -10,7 +10,7 @@ import { TransactionService } from '../transaction/transaction.service';
 export class AccountService {
   constructor(
     @InjectModel(Account.name) private accountModel: Model<AccountDocument>,
-   // private transactionService: TransactionService
+   
     ) {}
 
   async createAccount(accountDTO: AccountDTO): Promise<Account> {
@@ -22,7 +22,6 @@ export class AccountService {
     return this.accountModel.findOne({ accountNumber }).exec();
   }
 
-   
   async updateAccountBalance(accountNumber: string, newBalance: number): Promise<void> {
     const account = await this.accountModel.findOne({ accountNumber }).exec();
 

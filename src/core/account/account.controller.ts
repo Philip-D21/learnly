@@ -28,6 +28,7 @@ export class AccountController {
     return { status: true, data: { accounts } };
   }
 
+  
   @Delete(':accountId')
   async deleteAccount(@Param('accountId') accountId: string): Promise<any> {
     await this.accountService.deleteAccount(accountId);
